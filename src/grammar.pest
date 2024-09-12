@@ -1,0 +1,27 @@
+WHITESPACE  = _{ " " | "\t" | "\r" | "\n" }
+COMMENT     = _{ "//" ~ (!"\n" ~ ANY)* ~ "\n" }
+
+keyword     = { "function" | "let" | "if" | "else" | "scoop" | "show.text" }
+identifier  = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+number      = { ASCII_DIGIT+ }
+string      = { "\"" ~ (ASCII_ALPHANUMERIC | WHITESPACE | "\\" | ANY)* ~ "\"" }
+
+lbrace      = { "{" }
+rbrace      = { "}" }
+lparen      = { "(" }
+rparen      = { ")" }
+arrow       = { "=>" }
+
+expression  = { number | string | identifier | function_call | if_expression | scope }
+
+function_call = { identifier ~ lparen ~ (expression* ~ ("," ~ expression)*)? ~ rparen }
+if_expression = { "if" ~ lparen ~ expression ~ rparen ~ scope ~ ("else" ~ scope)? }
+scope         = { lbrace ~ statement* ~ rbrace }
+
+statement    = _{ function_declaration | let_declaration | show_text | expression }
+
+function_declaration = { "function" ~ identifier ~ lparen ~ (identifier* ~ ("," ~ identifier)*)? ~ rparen ~ arrow ~ scope }
+let_declaration      = { "let" ~ identifier ~ "=" ~ expression }
+show_text            = { "show.text" ~ lparen ~ string ~ rparen }
+
+program     = _{ SOI ~ (statement | COMMENT)* ~ EOI }
